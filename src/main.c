@@ -35,6 +35,21 @@ pthread_t pomodoro_thread;
 pthread_t water_thread;
 pthread_t move_thread;
 
+//----------------------------------------------------------------
+// Funktion zum Anzeigen des benutzerdefinierten Prompts
+void show_prompt() {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char hostname[1024];
+    gethostname(hostname, 1024);
+    char *username = getenv("USER");
+
+    // Format und Ausgabe des Prompts
+    printf(ANSI_COLOR_RED "UNISHELL - %s@%s" ANSI_COLOR_GREEN " [%02d:%02d] >> ", username, hostname, t->tm_hour, t->tm_min);
+    printf(ANSI_COLOR_RESET);
+}
+//----------------------------------------------------------------
+
 // Funktion zum Parsen von Befehlen in der eingegebenen Zeile
 char **parse_command(char *line)
 {
@@ -359,7 +374,8 @@ void shell_loop()
 
     do
     {
-        printf("> ");
+        //printf("> "); old
+        show_prompt();
         line = malloc(MAX_CMD_LENGTH);
         fgets(line, MAX_CMD_LENGTH, stdin);
 
