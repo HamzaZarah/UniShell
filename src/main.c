@@ -7,6 +7,15 @@
 #include <time.h>
 #include <pthread.h>
 
+// ANSI color codes
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
 // Definiere Konstanten für maximale Eingabelänge und Befehlstrennzeichen
 #define MAX_CMD_LENGTH 1024
 #define CMD_DELIMITER " \t\r\n\a"
@@ -386,6 +395,27 @@ void shell_loop()
         }
         else if (strcmp(args[0], "help") == 0)
         {
+            printf(ANSI_COLOR_RED "\n");
+            printf("╔═══════════════════════════════════════HELP═════════════════════════════════════╗\n");
+            printf("║                                                                                ║\n");
+            printf("║                     " ANSI_COLOR_RESET "               COMMANDS               " ANSI_COLOR_RED "                     ║\n");
+            printf("║                                                                                ║\n");
+            printf("║ " ANSI_COLOR_GREEN "start_pomodoro " ANSI_COLOR_RESET "- Start the Pomodoro Timer                                      " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "stop_pomodoro  " ANSI_COLOR_RESET "- Stop the Pomodoro Timer                                       " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "start_water    " ANSI_COLOR_RESET "- Start the Water Reminder Timer                                " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "stop_water     " ANSI_COLOR_RESET "- Stop the Water Reminder Timer                                 " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "start_move     " ANSI_COLOR_RESET "- Start the Movement Reminder Timer                             " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "stop_move      " ANSI_COLOR_RESET "- Stop the Movement Reminder Timer                              " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "start_all      " ANSI_COLOR_RESET "- Start all timers                                              " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "stop_all       " ANSI_COLOR_RESET "- Stop all timers                                               " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "exit           " ANSI_COLOR_RESET "- Exit the program                                              " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "help           " ANSI_COLOR_RESET "- Show this help again                                          " ANSI_COLOR_RED "║\n");
+            printf("║                                                                                ║\n");
+            printf("╚════════════════════════════════════════END═════════════════════════════════════╝\n");
+            printf(ANSI_COLOR_RESET "\n");
+
+            //old
+            /*
             printf("\n----------------- HELP -----------------\n");
             printf("\n                COMMANDS:               \n");
             printf(" Pomodoro timer start = 'start_pomodoro' \n");
@@ -398,6 +428,7 @@ void shell_loop()
             printf("           Stop all = 'stop_all'         \n");
             printf("           Exit Program = 'exit'         \n");
             printf("\n------------------ END -----------------\n");
+            */
         }
         else if (strcmp(args[0], "start_all") == 0)
         {
@@ -430,7 +461,38 @@ int main(int argc, char **argv)
     // Ignoriere SIGCHLD-Signale, um Zombie-Prozesse zu vermeiden
     signal(SIGCHLD, SIG_IGN);
 
-    printf("Welcome to Hamza and Albert's Halal Shell !\n If you need help type 'help'\n ");
+    printf(ANSI_COLOR_RED "\
+            ██╗   ██╗███╗   ██╗██╗███████╗██╗  ██╗███████╗██╗     ██╗             \n\
+            ██║   ██║████╗  ██║██║██╔════╝██║  ██║██╔════╝██║     ██║             \n\
+            ██║   ██║██╔██╗ ██║██║███████╗███████║█████╗  ██║     ██║             \n\
+            ██║   ██║██║╚██╗██║██║╚════██║██╔══██║██╔══╝  ██║     ██║             \n\
+            ╚██████╔╝██║ ╚████║██║███████║██║  ██║███████╗███████╗███████╗        \n\
+             ╚═════╝ ╚═╝  ╚═══╝╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝        \n" ANSI_COLOR_RESET);
+
+    printf(ANSI_COLOR_RED "\n");
+    printf("╔════════════════════════════════════════════════════════════════════════════════╗\n");
+    printf("║                       " ANSI_COLOR_RESET "Welcome to Your Personal Assistant" ANSI_COLOR_RED "                       ║\n");
+    printf("║                                                                                ║\n");
+    printf("║ " ANSI_COLOR_RESET "This program assists you in maintaining regular breaks                         " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_RESET "and reminds you to drink enough water and move around.                         " ANSI_COLOR_RED "║\n");
+    printf("║                                                                                ║\n");
+    printf("║ " ANSI_COLOR_CYAN "Commands:                                                                      " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "start_pomodoro " ANSI_COLOR_RESET "- Start the Pomodoro Timer                                      " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "stop_pomodoro  " ANSI_COLOR_RESET "- Stop the Pomodoro Timer                                       " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "start_water    " ANSI_COLOR_RESET "- Start the Water Reminder Timer                                " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "stop_water     " ANSI_COLOR_RESET "- Stop the Water Reminder Timer                                 " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "start_move     " ANSI_COLOR_RESET "- Start the Movement Reminder Timer                             " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "stop_move      " ANSI_COLOR_RESET "- Stop the Movement Reminder Timer                              " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "start_all      " ANSI_COLOR_RESET "- Start all timers                                              " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "stop_all       " ANSI_COLOR_RESET "- Stop all timers                                               " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "exit           " ANSI_COLOR_RESET "- Exit the program                                              " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "help           " ANSI_COLOR_RESET "- Show this help again                                          " ANSI_COLOR_RED "║\n");
+    printf("║                                                                                ║\n");
+    printf("║ " ANSI_COLOR_YELLOW "Please enter a command:                                                        " ANSI_COLOR_RED "║\n");
+    printf("╚════════════════════════════════════════════════════════════════════════════════╝\n");
+    printf(ANSI_COLOR_RESET "\n");
+
+    //printf("Welcome to Hamza and Albert's Halal Shell !\n If you need help type 'help'\n ");
     // Starte die Shell-Schleife
     shell_loop();
 
