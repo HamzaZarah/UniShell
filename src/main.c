@@ -6,6 +6,10 @@
 #include <signal.h>
 #include <time.h>
 #include <pthread.h>
+#include <limits.h>
+
+//NEW
+#include <termios.h>  // Include the termios library
 
 // ANSI color codes
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -22,8 +26,8 @@
 
 // Definiere Konstanten für Pomodoro-, Bewegungs- und Wassererinnerungszeiten
 #define POMODORO_TIME 2 * 60
-#define MOVE_REMINDER_TIME 4 * 60 * 60
-#define WATER_REMINDER_TIME 4 * 60 * 60
+#define MOVE_REMINDER_TIME 3 * 60
+#define WATER_REMINDER_TIME 6 * 60
 
 // Definiere Variablen für den Status der einzelnen Funktionen (Laufen/Nicht Laufen)
 __attribute__((unused)) int pomodoro_running = 0;
@@ -38,6 +42,11 @@ pthread_t move_thread;
 //----------------------------------------------------------------
 // Funktion zum Anzeigen des benutzerdefinierten Prompts
 void show_prompt() {
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("getcwd() error");
+        return;
+    }
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
     char hostname[1024];
@@ -45,8 +54,9 @@ void show_prompt() {
     char *username = getenv("USER");
 
     // Format und Ausgabe des Prompts
-    printf(ANSI_COLOR_RED "UNISHELL - %s@%s" ANSI_COLOR_GREEN " [%02d:%02d] >> ", username, hostname, t->tm_hour, t->tm_min);
+    printf(ANSI_COLOR_GREEN "[%02d:%02d] " ANSI_COLOR_RED "UNISHELL - %s@%s [%s]" ANSI_COLOR_GREEN"\n >> ", t->tm_hour, t->tm_min, username, hostname, cwd);
     printf(ANSI_COLOR_RESET);
+    fflush(stdout);//NEW: Stellt sicher, dass die Ausgabe sofort angezeigt wird
 }
 //----------------------------------------------------------------
 
@@ -147,7 +157,7 @@ void *pomodoro_thread_func()
         elapsed_time++;
 
         // Change to elapsed_time % 30 == 0 für 30 sekunde zit reminders
-        if (elapsed_time % 10 == 0)
+        if (elapsed_time % 31 == 0)
         {
             int remaining_time = pomodoro_time - elapsed_time;
 
@@ -193,7 +203,7 @@ void *water_thread_func()
         elapsed_time++;
 
         // Change to elapsed_time % 3600 == 0 for a reminder every hour
-        if (elapsed_time % 15 == 0)
+        if (elapsed_time % 91 == 0)
         {
             int remaining_time = water_time - elapsed_time;
 
@@ -239,7 +249,7 @@ void *move_thread_func()
         elapsed_time++;
 
         // Change to elapsed_time % 5400 == 0 for a reminder every 1.5 hours
-        if (elapsed_time % 30 == 0)
+        if (elapsed_time % 15 == 0)
         {
             int remaining_time = move_time - elapsed_time;
 
@@ -374,9 +384,9 @@ void shell_loop()
 
     do
     {
-        //printf("> "); old
         show_prompt();
         line = malloc(MAX_CMD_LENGTH);
+
         fgets(line, MAX_CMD_LENGTH, stdin);
 
         args = parse_command(line);
@@ -429,22 +439,6 @@ void shell_loop()
             printf("║                                                                                ║\n");
             printf("╚════════════════════════════════════════END═════════════════════════════════════╝\n");
             printf(ANSI_COLOR_RESET "\n");
-
-            //old
-            /*
-            printf("\n----------------- HELP -----------------\n");
-            printf("\n                COMMANDS:               \n");
-            printf(" Pomodoro timer start = 'start_pomodoro' \n");
-            printf("  Pomodoro timer stop = 'stop_pomodoro'  \n");
-            printf("   Water Reminder start = 'start_water'  \n");
-            printf("    Water reminder stop = 'stop_water'   \n");
-            printf("    Move Reminder start = 'start_move'   \n");
-            printf("     Move reminder stop = 'stop_move'    \n");
-            printf("          Start all = 'start_all'        \n");
-            printf("           Stop all = 'stop_all'         \n");
-            printf("           Exit Program = 'exit'         \n");
-            printf("\n------------------ END -----------------\n");
-            */
         }
         else if (strcmp(args[0], "start_all") == 0)
         {
