@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <limits.h>
 
-//NEW
+//NEW----
 #include <termios.h>  // Include the termios library
 
 // ANSI color codes
