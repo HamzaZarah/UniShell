@@ -477,7 +477,7 @@ int main(int argc, char **argv)
     // Ignoriere SIGCHLD-Signale, um Zombie-Prozesse zu vermeiden
     signal(SIGCHLD, SIG_IGN);
 
-    printf(ANSI_COLOR_RED "\
+    printf(ANSI_COLOR_RED "\n\
             ██╗   ██╗███╗   ██╗██╗███████╗██╗  ██╗███████╗██╗     ██╗             \n\
             ██║   ██║████╗  ██║██║██╔════╝██║  ██║██╔════╝██║     ██║             \n\
             ██║   ██║██╔██╗ ██║██║███████╗███████║█████╗  ██║     ██║             \n\
