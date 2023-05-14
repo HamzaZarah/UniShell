@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <limits.h>
 
-//NEW----
+//NEW
 #include <termios.h>  // Include the termios library
 
 // ANSI color codes
@@ -471,7 +471,7 @@ int main(int argc, char **argv)
     // Ignoriere SIGCHLD-Signale, um Zombie-Prozesse zu vermeiden
     signal(SIGCHLD, SIG_IGN);
 
-    printf(ANSI_COLOR_RED "\n\
+    printf(ANSI_COLOR_RED "\
             ██╗   ██╗███╗   ██╗██╗███████╗██╗  ██╗███████╗██╗     ██╗             \n\
             ██║   ██║████╗  ██║██║██╔════╝██║  ██║██╔════╝██║     ██║             \n\
             ██║   ██║██╔██╗ ██║██║███████╗███████║█████╗  ██║     ██║             \n\
