@@ -413,7 +413,6 @@ void shell_loop()
     char *line;
     char **args;
     int status = 1;
-    // Initialize pthread
 
     do
     {
