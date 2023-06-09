@@ -7,9 +7,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <limits.h>
-
-//NEW
-#include <termios.h>  // Include the termios library
+#include <termios.h> 
 
 // ANSI color codes
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -25,9 +23,9 @@
 #define CMD_DELIMITER " \t\r\n\a"
 
 // Definiere Konstanten für Pomodoro-, Bewegungs- und Wassererinnerungszeiten
-#define POMODORO_TIME 2 * 60
-#define MOVE_REMINDER_TIME 3 * 60
-#define WATER_REMINDER_TIME 6 * 60
+#define POMODORO_TIME 25 * 60
+#define MOVE_REMINDER_TIME 60 * 60
+#define WATER_REMINDER_TIME 60 * 60
 
 // Definiere Variablen für den Status der einzelnen Funktionen (Laufen/Nicht Laufen)
 __attribute__((unused)) int pomodoro_running = 0;
@@ -39,7 +37,6 @@ pthread_t pomodoro_thread;
 pthread_t water_thread;
 pthread_t move_thread;
 
-//----------------------------------------------------------------
 // Funktion zum Anzeigen des benutzerdefinierten Prompts
 void show_prompt() {
     char cwd[PATH_MAX];
@@ -56,9 +53,8 @@ void show_prompt() {
     // Format und Ausgabe des Prompts
     printf(ANSI_COLOR_GREEN "[%02d:%02d] " ANSI_COLOR_RED "UNISHELL - %s@%s [%s]" ANSI_COLOR_GREEN"\n >> ", t->tm_hour, t->tm_min, username, hostname, cwd);
     printf(ANSI_COLOR_RESET);
-    fflush(stdout);//NEW: Stellt sicher, dass die Ausgabe sofort angezeigt wird
+    fflush(stdout); // Stellt sicher, dass die Ausgabe sofort angezeigt wird
 }
-//----------------------------------------------------------------
 
 // Funktion zum Parsen von Befehlen in der eingegebenen Zeile
 char **parse_command(char *line)
@@ -157,7 +153,7 @@ void *pomodoro_thread_func()
         elapsed_time++;
 
         // Change to elapsed_time % 30 == 0 für 30 sekunde zit reminders
-        if (elapsed_time % 31 == 0)
+        if (elapsed_time % 900 == 0)
         {
             int remaining_time = pomodoro_time - elapsed_time;
 
@@ -203,7 +199,7 @@ void *water_thread_func()
         elapsed_time++;
 
         // Change to elapsed_time % 3600 == 0 for a reminder every hour
-        if (elapsed_time % 91 == 0)
+        if (elapsed_time % 900 == 0)
         {
             int remaining_time = water_time - elapsed_time;
 
@@ -226,9 +222,33 @@ void *water_thread_func()
         // Check if the Water time.
         if (elapsed_time == WATER_REMINDER_TIME)
         {
-            printf("Water Reminder time is up!\n");
-            printf("Water Reminder stopped.\n");
-            printf("Waiting for new command\n");
+            printf(ANSI_COLOR_BLUE "\n");
+            printf("╔════════════════════════════════════════════════════════WATER══════════════════════════════════════════════════════════╗\n");
+            printf("║                                                                                                                       ║\n");
+            printf("║                                                " ANSI_COLOR_RESET "WATER REMINDER IS UP" ANSI_COLOR_BLUE "                                                   ║\n");
+            printf("║                                                                                                                       ║\n");
+            printf("║ " ANSI_COLOR_CYAN  "DRINK                     " ANSI_COLOR_RESET "- WATER AND ONLY WATER                                                                      " ANSI_COLOR_BLUE "║\n");
+            printf("║                                                                                                                       ║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣀⣀⣀⣀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠉⠉⠉⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣤⣤⣤⣤⣤⣤⣤⣤⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣥⣤⣤⣤⣤⣤⣤⣤⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣤⣤⣤⣤⣤⣤⣤⣤⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣍⣉⣉⣉⣉⣉⣉⣉⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠉⠉⠉⠉⠉⠉⠉⠉⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⡇⢀⣀⠀⠀⠀⢈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⠘⣿⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⠀⣿⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⠀⣿⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣶⣿⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿║\n");
+            printf("║                                                                                                                       ║\n");
+            printf("║                                                                                                                       ║\n");
+            printf("║ " ANSI_COLOR_YELLOW "Please enter a command:                                                                                               " ANSI_COLOR_BLUE "║\n");
+            printf("╚═════════════════════════════════════════════════════════END═══════════════════════════════════════════════════════════╝\n");
+            printf(ANSI_COLOR_RESET "\n");
             pthread_cancel(pthread_self());
             pthread_join(pthread_self(), NULL);
         }
@@ -249,32 +269,45 @@ void *move_thread_func()
         elapsed_time++;
 
         // Change to elapsed_time % 5400 == 0 for a reminder every 1.5 hours
-        if (elapsed_time % 15 == 0)
+        if (elapsed_time % 900 == 0)
         {
             int remaining_time = move_time - elapsed_time;
 
             if (remaining_time >= 3600)
             {
-                printf("\nPlease Move!\nMove Reminder Time Left: %d hours %d minutes %d seconds left\n",
+                printf("\nMove Reminder Time Left: %d hours %d minutes %d seconds left\n",
                        remaining_time / 3600, (remaining_time % 3600) / 60, remaining_time % 60);
             }
             else if (remaining_time >= 60)
             {
-                printf("\nPlease Move!\nMove Reminder Time Left: %d minutes %d seconds left\n",
+                printf("\nMove Reminder Time Left: %d minutes %d seconds left\n",
                        remaining_time / 60, remaining_time % 60);
             }
             else
             {
-                printf("\nPlease Move!\nMove Reminder Time Left: %d seconds left\n", remaining_time);
+                printf("\nMove Reminder Time Left: %d seconds left\n", remaining_time);
             }
         }
 
         // Check if the Water time.
         if (elapsed_time == MOVE_REMINDER_TIME)
         {
-            printf("Move Reminder time is up!\n");
-            printf("Move Reminder stopped.\n");
-            printf("Waiting for new command\n");
+            printf(ANSI_COLOR_RED "\n");
+            printf("╔═════════════════════════════════════════════════════════MOVE══════════════════════════════════════════════════════════╗\n");
+            printf("║                                                                                                                       ║\n");
+            printf("║                     " ANSI_COLOR_RESET "                      MOVE REMINDER IS UP - TIME TO MOVE                    " ANSI_COLOR_RED "                      ║\n");
+            printf("║                                                                                                                       ║\n");
+            printf("║ " ANSI_COLOR_GREEN "1. Neck Stretches           " ANSI_COLOR_RESET "- Tilt your head towards each shoulder and nod slowly forward and backward                " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "2. Shoulder Shrugs          " ANSI_COLOR_RESET "- Lift your shoulders towards your ears and then gently drop them down.                   " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "3. Hand and Wrist Stretches " ANSI_COLOR_RESET "- Extend each arm and gently pull your fingers back, first upwards, then downwards.       " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "4. Seated Spinal Twist      " ANSI_COLOR_RESET "- Seated, twist your upper body to one side, hold, and then switch sides.                 " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "5. Leg Extensions           " ANSI_COLOR_RESET "- Straighten one leg out while seated, hold, lower, and then switch legs.                 " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "6. Ankle Rolls              " ANSI_COLOR_RESET "- Lift one foot and slowly roll your ankle in a circular motion, then switch feet.        " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "7. Deep Breathing           " ANSI_COLOR_RESET "- Close your eyes and engage in deep, slow breaths, with a longer exhale than inhale.     " ANSI_COLOR_RED "║\n");
+            printf("║                                                                                                                       ║\n");
+            printf("║ " ANSI_COLOR_YELLOW "Please enter a command:                                                                                               " ANSI_COLOR_RED "║\n");
+            printf("╚═════════════════════════════════════════════════════════END═══════════════════════════════════════════════════════════╝\n");
+            printf(ANSI_COLOR_RESET "\n");
             pthread_cancel(pthread_self());
             pthread_join(pthread_self(), NULL);
         }
@@ -386,10 +419,31 @@ void shell_loop()
     {
         show_prompt();
         line = malloc(MAX_CMD_LENGTH);
-
-        fgets(line, MAX_CMD_LENGTH, stdin);
+        // new 09.06.2023
+        if (!line) {
+            fprintf(stderr, "Allocation error\n");
+            exit(EXIT_FAILURE);
+        }
+        // new 09.06.2023
+        //fgets(line, MAX_CMD_LENGTH, stdin);
+        if (fgets(line, MAX_CMD_LENGTH, stdin) == NULL) {
+            // Error or EOF
+            if (feof(stdin)) {
+                // End of file (ctrl-d)
+                printf("\n");
+                exit(EXIT_SUCCESS);
+            } else {
+                perror("fgets() error");
+                exit(EXIT_FAILURE);
+            }
+        }
 
         args = parse_command(line);
+        // new 09.06.2023
+        if (!args) {
+            fprintf(stderr, "Allocation error\n");
+            exit(EXIT_FAILURE);
+        }
 
         if (args[0] == NULL)
         {
@@ -437,6 +491,7 @@ void shell_loop()
             printf("║ " ANSI_COLOR_GREEN "exit           " ANSI_COLOR_RESET "- Exit the program                                              " ANSI_COLOR_RED "║\n");
             printf("║ " ANSI_COLOR_GREEN "help           " ANSI_COLOR_RESET "- Show this help again                                          " ANSI_COLOR_RED "║\n");
             printf("║                                                                                ║\n");
+            printf("║ " ANSI_COLOR_YELLOW "Please enter a command:                                                        " ANSI_COLOR_RED "║\n");
             printf("╚════════════════════════════════════════END═════════════════════════════════════╝\n");
             printf(ANSI_COLOR_RESET "\n");
         }
@@ -502,7 +557,6 @@ int main(int argc, char **argv)
     printf("╚════════════════════════════════════════════════════════════════════════════════╝\n");
     printf(ANSI_COLOR_RESET "\n");
 
-    //printf("Welcome to Hamza and Albert's Halal Shell !\n If you need help type 'help'\n ");
     // Starte die Shell-Schleife
     shell_loop();
 
