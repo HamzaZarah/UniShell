@@ -450,27 +450,69 @@ void shell_loop()
         }
         else if (strcmp(args[0], "start_pomodoro") == 0)
         {
-            start_pomodoro();
+            if (pomodoro_running)
+            {
+                printf("Pomodoro timer is already running\n");
+            }
+            else
+            {
+                start_pomodoro();
+            }
         }
         else if (strcmp(args[0], "stop_pomodoro") == 0)
         {
-            stop_pomodoro();
+            if (!pomodoro_running)
+            {
+                printf("Pomodoro timer is not running\n");
+            }
+            else
+            {
+                stop_pomodoro();
+            }
         }
         else if (strcmp(args[0], "start_water") == 0)
         {
-            start_water();
+            if (water_running)
+            {
+                printf("Water reminder is already running\n");
+            }
+            else
+            {
+                start_water();
+            }
         }
         else if (strcmp(args[0], "stop_water") == 0)
         {
-            stop_water();
+            if (!water_running)
+            {
+                printf("Water reminder is not running\n");
+            }
+            else
+            {
+                stop_water();
+            }
         }
         else if (strcmp(args[0], "start_move") == 0)
         {
-            start_move();
+            if (move_running)
+            {
+                printf("Move reminder is already running\n");
+            }
+            else
+            {
+                start_move();
+            }
         }
         else if (strcmp(args[0], "stop_move") == 0)
         {
-            stop_move();
+            if (!move_running)
+            {
+                printf("Move reminder is not running\n");
+            }
+            else
+            {
+                stop_move();
+            }
         }
         else if (strcmp(args[0], "help") == 0)
         {
