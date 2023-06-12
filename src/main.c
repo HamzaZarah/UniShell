@@ -596,12 +596,22 @@ void shell_loop()
         line = rl_gets();  // Use rl_gets instead of fgets
         if (line == NULL) 
         {
+            perror("rl_gets"); // or a custom message
+            exit(EXIT_FAILURE);
+        }
+        if (line == NULL) 
+        {
             // End of file (ctrl-d)
             printf("\n");
             exit(EXIT_SUCCESS);
         }
 
         args = parse_command(line);
+        if (args == NULL) 
+        {
+            perror("parse_command");
+            exit(EXIT_FAILURE);
+        }
         if (!args) 
         {
             fprintf(stderr, "Allocation error\n");
@@ -611,13 +621,28 @@ void shell_loop()
         {
             printf("Please enter a command\n");
         }
-        else if (strcmp(args[0], "cd") == 0) {
-            status = cd_command(args);
+        else if (strcmp(args[0], "cd") == 0)
+        {
+            if (args[1] == NULL) 
+            {
+                fprintf(stderr, "Expected argument to \"cd\"\n");
+            }
+            else 
+            {
+                if (chdir(args[1]) != 0) 
+                {
+                    perror("chdir");
+                }
+            }
         }
-        else if (strcmp(args[0], "set_timer") == 0) {
-            if (args[1] == NULL || args[2] == NULL) {
+        else if (strcmp(args[0], "set_timer") == 0) 
+        {
+            if (args[1] == NULL || args[2] == NULL) 
+            {
                 fprintf(stderr, "Expected timer type and new time for \"set_timer\"\n");
-            } else {
+            }
+            else 
+            {
                 set_timer(args[1], atoi(args[2]));
             }
         }
