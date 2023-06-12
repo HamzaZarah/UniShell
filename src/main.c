@@ -22,6 +22,9 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 // Definiere Konstanten für maximale Eingabelänge und Befehlstrennzeichen
+#define PROMPT_SIZE 4096
+#define MAX_STR_SIZE 1023
+#define PROMPT_SIZE 4096
 #define MAX_CMD_LENGTH 1024
 #define CMD_DELIMITER " \t\r\n\a"
 
@@ -103,9 +106,15 @@ char* show_prompt() {
     gethostname(hostname, 1024);
     char *username = getenv("USER");
 
-    // Allocate and format the prompt string
-    char *prompt = malloc(2048); // adjust size as needed
-    snprintf(prompt, 2048, ANSI_COLOR_GREEN "[%02d:%02d] " ANSI_COLOR_RED "UNISHELL - %s@%s [%s]" ANSI_COLOR_GREEN "\n >> " ANSI_COLOR_RESET, t->tm_hour, t->tm_min, username, hostname, cwd);
+    // Allocate memory for the prompt
+    char* prompt = malloc(sizeof(char) * PROMPT_SIZE);
+    if (prompt == NULL) {
+        perror("Failed to allocate memory for prompt");
+        return NULL;
+    }
+
+    // Format and output of the prompts
+    snprintf(prompt, PROMPT_SIZE, ANSI_COLOR_GREEN "[%02d:%02d] " ANSI_COLOR_RED "UNISHELL - %.1023s@%.1023s [%.1023s]" ANSI_COLOR_GREEN "\n >> " ANSI_COLOR_RESET, t->tm_hour, t->tm_min, username, hostname, cwd);
 
     return prompt;
 }
