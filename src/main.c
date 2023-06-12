@@ -23,9 +23,9 @@
 #define CMD_DELIMITER " \t\r\n\a"
 
 // Definiere Konstanten für Pomodoro-, Bewegungs- und Wassererinnerungszeiten
-#define POMODORO_TIME 25 * 60
-#define MOVE_REMINDER_TIME 60 * 60
-#define WATER_REMINDER_TIME 60 * 60
+#define POMODORO_TIME 1 * 60
+#define MOVE_REMINDER_TIME 2 * 60
+#define WATER_REMINDER_TIME 3 * 60
 
 // Definiere Variablen für den Status der einzelnen Funktionen (Laufen/Nicht Laufen)
 __attribute__((unused)) int pomodoro_running = 0;
