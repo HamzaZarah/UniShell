@@ -38,10 +38,28 @@ __attribute__((unused)) int pomodoro_running = 0;
 __attribute__((unused)) int water_running = 0;
 __attribute__((unused)) int move_running = 0;
 
+int pomodoro_time = 0;    // The time the pomodoro timer is set to
+int elapsed_time_pomodoro = 0; // The time that has elapsed since the pomodoro timer started
+
+int water_time = 0; // The time the water timer is set to
+int elapsed_time_water = 0; // The time that has elapsed since the water timer started
+
+int move_time = 0; // The time the move timer is set to
+int elapsed_time_move = 0; // The time that has elapsed since the move timer started
+
 // Definiere Thread-Objekte für Pomodoro-, Wasser- und Bewegungserinnerungen
 pthread_t pomodoro_thread;
 pthread_t water_thread;
 pthread_t move_thread;
+
+//declaration of  the mutexes and the start time for each thread
+pthread_mutex_t pomodoro_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t water_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t move_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+time_t start_time_pomodoro = 0; 
+time_t start_time_water = 0;
+time_t start_time_move = 0;
 
 //---------------------------------------
 char *line_read = NULL;
@@ -471,6 +489,100 @@ void stop_move()
     printf("Move Reminder stopped.\n");
 }
 
+void* run_pomodoro(void* args) {
+    // set the start time
+    time(&start_time_pomodoro);
+
+    for (int i = 0; i < POMODORO_TIME; i++) {
+        sleep(1); // wait for 1 second
+        // lock the mutex before modifying elapsed_time_pomodoro
+        pthread_mutex_lock(&pomodoro_mutex);
+        elapsed_time_pomodoro++;
+        pthread_mutex_unlock(&pomodoro_mutex);
+    }
+
+    pthread_mutex_lock(&pomodoro_mutex);
+    pomodoro_running = 0;
+    pthread_mutex_unlock(&pomodoro_mutex);
+
+    return NULL;
+}
+void* run_water(void* args) {
+    // set the start time
+    time(&start_time_water);
+
+    for (int i = 0; i < WATER_REMINDER_TIME; i++) {
+        sleep(1); // wait for 1 second
+        // lock the mutex before modifying elapsed_time_water
+        pthread_mutex_lock(&water_mutex);
+        elapsed_time_water++;
+        pthread_mutex_unlock(&water_mutex);
+    }
+
+    pthread_mutex_lock(&water_mutex);
+    water_running = 0;
+    pthread_mutex_unlock(&water_mutex);
+
+    return NULL;
+}
+void* run_move(void* args) {
+    // set the start time
+    time(&start_time_move);
+
+    for (int i = 0; i < MOVE_REMINDER_TIME; i++) {
+        sleep(1); // wait for 1 second
+        // lock the mutex before modifying elapsed_time_move
+        pthread_mutex_lock(&move_mutex);
+        elapsed_time_move++;
+        pthread_mutex_unlock(&move_mutex);
+    }
+
+    pthread_mutex_lock(&move_mutex);
+    move_running = 0;
+    pthread_mutex_unlock(&move_mutex);
+
+    return NULL;
+}
+
+
+void show_timers() {
+    pthread_mutex_lock(&pomodoro_mutex);
+    if (pomodoro_running) {
+        int remaining_time_pomodoro = POMODORO_TIME - elapsed_time_pomodoro;
+        int hours_pomodoro = remaining_time_pomodoro / 3600;
+        int minutes_pomodoro = (remaining_time_pomodoro - (hours_pomodoro * 3600)) / 60;
+        int seconds_pomodoro = remaining_time_pomodoro % 60;
+        printf("Pomodoro Time Left: %02d:%02d:%02d\n", hours_pomodoro, minutes_pomodoro, seconds_pomodoro);
+    } else {
+        printf("Pomodoro timer is not running.\n");
+    }
+    pthread_mutex_unlock(&pomodoro_mutex);
+
+    pthread_mutex_lock(&water_mutex);
+    if (water_running) {
+        int remaining_time_water = WATER_REMINDER_TIME - elapsed_time_water;
+        int hours_water = remaining_time_water / 3600;
+        int minutes_water = (remaining_time_water - (hours_water * 3600)) / 60;
+        int seconds_water = remaining_time_water % 60;
+        printf("Water Reminder Time Left: %02d:%02d:%02d\n", hours_water, minutes_water, seconds_water);
+    } else {
+        printf("Water reminder is not running.\n");
+    }
+    pthread_mutex_unlock(&water_mutex);
+
+    pthread_mutex_lock(&move_mutex);
+    if (move_running) {
+        int remaining_time_move = MOVE_REMINDER_TIME - elapsed_time_move;
+        int hours_move = remaining_time_move / 3600;
+        int minutes_move = (remaining_time_move - (hours_move * 3600)) / 60;
+        int seconds_move = remaining_time_move % 60;
+        printf("Move Reminder Time Left: %02d:%02d:%02d\n", hours_move, minutes_move, seconds_move);
+    } else {
+        printf("Move reminder is not running.\n");
+    }
+    pthread_mutex_unlock(&move_mutex);
+}
+
 void shell_loop()
 {
     char *line;
@@ -575,6 +687,10 @@ void shell_loop()
                 stop_move();
             }
         }
+        else if (strcmp(line, "show_timers") == 0)
+        {
+            show_timers();
+        }
         else if (strcmp(args[0], "help") == 0)
         {
             printf(ANSI_COLOR_RED "\n");
@@ -593,6 +709,7 @@ void shell_loop()
             printf("║ " ANSI_COLOR_GREEN "stop_water        " ANSI_COLOR_RESET "- Stop the Water Reminder Timer                              " ANSI_COLOR_RED "║\n");
             printf("║ " ANSI_COLOR_GREEN "start_move        " ANSI_COLOR_RESET "- Start the Movement Reminder Timer                          " ANSI_COLOR_RED "║\n");
             printf("║ " ANSI_COLOR_GREEN "stop_move         " ANSI_COLOR_RESET "- Stop the Movement Reminder Timer                           " ANSI_COLOR_RED "║\n");
+            printf("║ " ANSI_COLOR_GREEN "show_timers       " ANSI_COLOR_RESET "- Show the status of all timers                              " ANSI_COLOR_RED "║\n");
             printf("║ " ANSI_COLOR_GREEN "start_all         " ANSI_COLOR_RESET "- Start all timers                                           " ANSI_COLOR_RED "║\n");
             printf("║ " ANSI_COLOR_GREEN "stop_all          " ANSI_COLOR_RESET "- Stop all timers                                            " ANSI_COLOR_RED "║\n");
             printf("║ " ANSI_COLOR_GREEN "exit              " ANSI_COLOR_RESET "- Exit the program                                           " ANSI_COLOR_RED "║\n");
@@ -659,6 +776,7 @@ int main(int argc, char **argv)
     printf("║ " ANSI_COLOR_GREEN "stop_water        " ANSI_COLOR_RESET "- Stop the Water Reminder Timer                              " ANSI_COLOR_RED "║\n");
     printf("║ " ANSI_COLOR_GREEN "start_move        " ANSI_COLOR_RESET "- Start the Movement Reminder Timer                          " ANSI_COLOR_RED "║\n");
     printf("║ " ANSI_COLOR_GREEN "stop_move         " ANSI_COLOR_RESET "- Stop the Movement Reminder Timer                           " ANSI_COLOR_RED "║\n");
+    printf("║ " ANSI_COLOR_GREEN "show_timers       " ANSI_COLOR_RESET "- Show the status of all timers                              " ANSI_COLOR_RED "║\n");
     printf("║ " ANSI_COLOR_GREEN "start_all         " ANSI_COLOR_RESET "- Start all timers                                           " ANSI_COLOR_RED "║\n");
     printf("║ " ANSI_COLOR_GREEN "stop_all          " ANSI_COLOR_RESET "- Stop all timers                                            " ANSI_COLOR_RED "║\n");
     printf("║ " ANSI_COLOR_GREEN "exit              " ANSI_COLOR_RESET "- Exit the program                                           " ANSI_COLOR_RED "║\n");
