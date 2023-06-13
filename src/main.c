@@ -591,7 +591,6 @@ void shell_loop()
 
     do
     {
-        show_prompt();
         //-----------------------------------------
         line = rl_gets();  // Use rl_gets instead of fgets
         if (line == NULL) 
@@ -637,7 +636,7 @@ void shell_loop()
         }
         else if (strcmp(args[0], "set_timer") == 0) 
         {
-            if (args[1] == NULL || args[2] == NULL) 
+            if (args[1] == NULL || args[2] == NULL)
             {
                 fprintf(stderr, "Expected timer type and new time for \"set_timer\"\n");
             }
