@@ -61,6 +61,10 @@ time_t start_time_pomodoro = 0;
 time_t start_time_water = 0;
 time_t start_time_move = 0;
 
+time_t pomodoro_start_time;
+time_t move_start_time;
+time_t water_start_time;
+
 //---------------------------------------
 char *line_read = NULL;
 char* show_prompt();
@@ -412,6 +416,8 @@ void start_pomodoro()
     }
 
     pomodoro_running = 1;
+    //--------
+    pomodoro_start_time = time(NULL);
     if (pthread_create(&pomodoro_thread, NULL, pomodoro_thread_func, NULL) != 0)
     {
         fprintf(stderr, "Error creating pomodoro thread\n");
@@ -421,6 +427,7 @@ void start_pomodoro()
 void stop_pomodoro()
 {
     pomodoro_running = 0;
+    pomodoro_start_time = 0; // reset the start time
     // Cancel the pomodoro thread
     pthread_cancel(pomodoro_thread);
     pthread_join(pomodoro_thread, NULL);
@@ -443,6 +450,7 @@ void start_water()
         printf("Water Reminder started for the duration of %d seconds\n", WATER_REMINDER_TIME);
     }
     water_running = 1;
+    water_start_time = time(NULL); // record the start time just before starting the thread
     if (pthread_create(&water_thread, NULL, water_thread_func, NULL) != 0)
     {
         fprintf(stderr, "Error creating Water Reminder thread\n");
@@ -452,6 +460,7 @@ void start_water()
 void stop_water()
 {
     water_running = 0;
+    water_start_time = 0; // reset the start time
     // Cancel the pomodoro thread
     pthread_cancel(water_thread);
     pthread_join(water_thread, NULL);
@@ -474,6 +483,7 @@ void start_move()
         printf("Move Reminder started for the duration of %d seconds\n", MOVE_REMINDER_TIME);
     }
     move_running = 1;
+    move_start_time = time(NULL); // record the start time
     if (pthread_create(&move_thread, NULL, move_thread_func, NULL) != 0)
     {
         fprintf(stderr, "Error creating Move Reminder thread\n");
@@ -483,6 +493,7 @@ void start_move()
 void stop_move()
 {
     move_running = 0;
+    move_start_time = 0; // reset the start time
     // Cancel the pomodoro thread
     pthread_cancel(move_thread);
     pthread_join(move_thread, NULL);
@@ -546,9 +557,13 @@ void* run_move(void* args) {
 
 
 void show_timers() {
+    time_t current_time = time(NULL);
+
     pthread_mutex_lock(&pomodoro_mutex);
     if (pomodoro_running) {
+        int elapsed_time_pomodoro = current_time - pomodoro_start_time;
         int remaining_time_pomodoro = POMODORO_TIME - elapsed_time_pomodoro;
+        remaining_time_pomodoro = remaining_time_pomodoro > 0 ? remaining_time_pomodoro : 0; // Ensure remaining time does not go negative
         int hours_pomodoro = remaining_time_pomodoro / 3600;
         int minutes_pomodoro = (remaining_time_pomodoro - (hours_pomodoro * 3600)) / 60;
         int seconds_pomodoro = remaining_time_pomodoro % 60;
@@ -558,9 +573,12 @@ void show_timers() {
     }
     pthread_mutex_unlock(&pomodoro_mutex);
 
+    // Similar updates for the other timers
     pthread_mutex_lock(&water_mutex);
     if (water_running) {
+        int elapsed_time_water = current_time - water_start_time;
         int remaining_time_water = WATER_REMINDER_TIME - elapsed_time_water;
+        remaining_time_water = remaining_time_water > 0 ? remaining_time_water : 0; // Ensure remaining time does not go negative
         int hours_water = remaining_time_water / 3600;
         int minutes_water = (remaining_time_water - (hours_water * 3600)) / 60;
         int seconds_water = remaining_time_water % 60;
@@ -572,7 +590,9 @@ void show_timers() {
 
     pthread_mutex_lock(&move_mutex);
     if (move_running) {
+        int elapsed_time_move = current_time - move_start_time;
         int remaining_time_move = MOVE_REMINDER_TIME - elapsed_time_move;
+        remaining_time_move = remaining_time_move > 0 ? remaining_time_move : 0; // Ensure remaining time does not go negative
         int hours_move = remaining_time_move / 3600;
         int minutes_move = (remaining_time_move - (hours_move * 3600)) / 60;
         int seconds_move = remaining_time_move % 60;
@@ -582,6 +602,7 @@ void show_timers() {
     }
     pthread_mutex_unlock(&move_mutex);
 }
+
 
 void shell_loop()
 {
@@ -642,7 +663,22 @@ void shell_loop()
             }
             else 
             {
-                set_timer(args[1], atoi(args[2]));
+                if (strcmp(args[1], "POMODORO_TIME") == 0 && !pomodoro_running)
+                {
+                    set_timer(args[1], atoi(args[2]));
+                }
+                else if (strcmp(args[1], "WATER_REMINDER_TIME") == 0 && !water_running)
+                {
+                    set_timer(args[1], atoi(args[2]));
+                }
+                else if (strcmp(args[1], "MOVE_REMINDER_TIME") == 0 && !move_running)
+                {
+                    set_timer(args[1], atoi(args[2]));
+                }
+                else
+                {
+                    printf("Cannot set the timer while it is running\n");
+                }
             }
         }
         else if (strcmp(args[0], "start_pomodoro") == 0)
@@ -745,15 +781,37 @@ void shell_loop()
         }
         else if (strcmp(args[0], "start_all") == 0)
         {
-            start_pomodoro();
-            start_water();
-            start_move();
+            if (!pomodoro_running)
+            {
+                start_pomodoro();
+            }
+
+            if (!water_running)
+            {
+                start_water();
+            }
+
+            if (!move_running)
+            {
+                start_move();
+            }
         }
         else if (strcmp(args[0], "stop_all") == 0)
         {
-            stop_pomodoro();
-            stop_water();
-            stop_move();
+            if (pomodoro_running)
+            {
+                stop_pomodoro();
+            }
+
+            if (water_running)
+            {
+                stop_water();
+            }
+
+            if (move_running)
+            {
+                stop_move();
+            }
         }
         else if (strcmp(args[0], "exit") == 0)
         {
